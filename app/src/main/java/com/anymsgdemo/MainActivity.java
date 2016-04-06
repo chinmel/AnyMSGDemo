@@ -3,23 +3,26 @@ package com.anymsgdemo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
+
+import com.nativeapi.AnyMSG;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 
 public class MainActivity extends AppCompatActivity {
-
+    WebView wv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final WebView wv = (WebView) findViewById(R.id.webView);
+        wv = (WebView) findViewById(R.id.webView);
         WebSettings setting = wv.getSettings();
         setting.setJavaScriptEnabled(true);//支持js
         setting.setDefaultTextEncodingName("GBK");//设置字符编码
@@ -30,12 +33,12 @@ public class MainActivity extends AppCompatActivity {
         wv.addJavascriptInterface(new WebViewJS2Java(), "webViewJS2Java");
         wv.loadUrl("file:///android_asset/index.html");
 
-
-        Button btn = (Button) findViewById(R.id.btn);
-
-        btn.setOnClickListener(new View.OnClickListener() {
+        final AnyMSG demo = new AnyMSG();
+        demo.setOnMSGLoginListener(new AnyMSG.OnMSGLoginListener() {
             @Override
-            public void onClick(View v) {
+            public int onMSGlogin() {
+                Log.d("anymsg", "onMSGloginListener");
+
                 JSONObject j = new JSONObject();
                 JSONObject opr = new JSONObject();
                 try {
@@ -48,6 +51,18 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 wv.loadUrl("javascript:anyMSGLoginCallbackFNC('" + j +"')");
+
+                return 0;
+            }
+        });
+
+        Button btn = (Button) findViewById(R.id.btn);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                demo.call();
+
             }
         });
     }

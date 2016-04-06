@@ -1,6 +1,32 @@
 apply plugin: 'com.android.application'
+def releaseTime() {
+    return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("UTC"))
+}
 
+def gitVersionCode() {
+    def cmd = 'git rev-list HEAD --first-parent --count'
+    cmd.execute().text.trim().toInteger()
+}
+
+def gitVersionTag() {
+    def cmd = 'git describe --tags'
+    def version = cmd.execute().text.trim()
+
+    def pattern = "-(\\d+)-g"
+    def matcher = version =~ pattern
+
+    if (matcher) {
+        version = version.substring(0, matcher.start()) + "." + matcher[0][1]
+    } else {
+        version = version + ".0"
+    }
+
+    return version
+}
 android {
+    def cmd = 'git rev-list HEAD --first-parent --count'
+    def gitVersion = cmd.execute().text.trim().toInteger()
+
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
 
@@ -8,17 +34,49 @@ android {
         applicationId "com.anymsgdemo"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
+        versionCode gitVersion
+        versionName version
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+
+            debuggable true
+            jniDebuggable true
+        }
+    }
+
+    productFlavors {
+        dev {
+            manifestPlaceholders = [channel: "dev"]
+        }
+//        official {
+//            manifestPlaceholders = [channel: "official"]
+//        }
+//        xiaomi {
+//            manifestPlaceholders = [channel: "xiaomi"]
+//        }
+//        wandoujia {
+//            manifestPlaceholders = [channel: "wandoujia"]
+//        }
+//        "360" {
+//            manifestPlaceholders = [channel: "360"]
+//        }
     }
 }
-
+//自定义apk安装包名
+android.applicationVariants.all { variant ->
+    variant.mergedFlavor.versionCode = gitVersionCode()
+    variant.mergedFlavor.versionName = gitVersionTag()
+    variant.outputs.each { output ->
+        output.outputFile = new File(
+                output.outputFile.parent + "/${variant.buildType.name}",
+                "AnyMSGNative-${variant.buildType.name}-v${variant.versionName}-${variant.productFlavors[0].name}-${releaseTime()}.apk".toLowerCase())
+    }
+}
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
