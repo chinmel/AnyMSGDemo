@@ -532,7 +532,7 @@ function anyMSGSendCallbackFNC(jsonObj) {
 
 function anyMSGLoginCallbackFNC(jsonObjs) {
     eval("var jsonObj = " + jsonObjs);
-
+//    alert("oprCode:" + jsonObj.opr.code);
     try {
         switch (jsonObj.opr.code) {
             case 2001:/*登录OK*/

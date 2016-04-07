@@ -10,10 +10,10 @@ import android.webkit.WebView;
 /**
  * Created by chinmel on 16/4/6.
  */
-public class WebViewJava2JS extends WebChromeClient {
+public class WebViewOverride extends WebChromeClient {
     private Handler msgHandler;
 
-    public WebViewJava2JS(Handler h) {
+    public WebViewOverride(Handler h) {
         msgHandler = h;
     }
 
@@ -38,17 +38,9 @@ public class WebViewJava2JS extends WebChromeClient {
     }
 
     //==================================================================
-    //        JSONObject j = new JSONObject();
-//        JSONObject opr = new JSONObject();
-//        try {
-//            j.put("opr", opr);
-////                    j.put("port", 9000);
-//            opr.put("code", 2001);
-//            opr.put("desp", 98721);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
+
+
 //
-//        wv.loadUrl("javascript:anyMSGLoginCallbackFNC('" + j +"')");
+//
 }
 

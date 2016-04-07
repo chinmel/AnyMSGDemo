@@ -6,6 +6,7 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -19,7 +20,8 @@ import org.json.JSONObject;
 
 
 public class MainActivity extends AppCompatActivity {
-    WebView wv;
+    public static WebView wv;
+    static final AnyMSG demo = new AnyMSG();
     private Handler ui_main_handler;
 
     @Override
@@ -35,18 +37,19 @@ public class MainActivity extends AppCompatActivity {
         setting.setDefaultTextEncodingName("GBK");//设置字符编码
         wv.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);//滚动条风格，为0指滚动条不占用空间，直接覆盖在网页上
         setting.setSupportZoom(false);
+        setting.setBuiltInZoomControls(false);
+
         setting.setCacheMode(WebSettings.LOAD_NO_CACHE);
-        wv.setWebChromeClient(new WebViewJava2JS(ui_main_handler));
+        wv.setWebChromeClient(new WebViewOverride(ui_main_handler));
         wv.addJavascriptInterface(new WebViewJS2Java(), "webViewJS2Java");
         wv.loadUrl("file:///android_asset/index.html");
 
-
-        final AnyMSG demo = new AnyMSG();
 
         demo.setOnMSGLoginListener(new AnyMSG.OnMSGLoginListener() {
             @Override
             public void onMSGLogin() {
                 Log.d("anyMSGDemo", "onMSGLogin");
+                AnyMSGWebAPI.uiEventTrigger(wv, ErrGenerator.opration(ErrGenerator.ErrCode.ERRCODE_SUCCESS_LOGINING));
             }
         });
 
@@ -54,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onMSGWelcome(String uid, String cid) {
                 Log.d("anyMSGDemo", "onMSGWelcome: uid[" + uid + "],cid[" + cid + "]");
+                AnyMSGWebAPI.uiEventTrigger(wv, ErrGenerator.opration(ErrGenerator.ErrCode.ERRCODE_SUCCESS_LOGINOK, String.valueOf(cid)));
             }
         });
 
@@ -61,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onMSGHeartBeat(String uid, String cid) {
                 Log.d("anyMSGDemo", "onMSGHeartBeat: uid[" + uid + "],cid[" + cid + "]");
+                AnyMSGWebAPI.uiEventTrigger(wv, ErrGenerator.opration(ErrGenerator.ErrCode.ERRCODE_SUCCESS_HB));
             }
         });
 
@@ -68,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onMSGHeartBeatReply(String uid, String cid) {
                 Log.d("anyMSGDemo", "onMSGHeartBeatReply: uid[" + uid + "],cid[" + cid + "]");
+                AnyMSGWebAPI.uiEventTrigger(wv, ErrGenerator.opration(ErrGenerator.ErrCode.ERRCODE_SUCCESS_HBP));
             }
         });
 
@@ -76,10 +82,27 @@ public class MainActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                demo.call();
+//                AnyMSGWebAPI.uiEventTrigger(wv,ErrGenerator.opration(ErrGenerator.ErrCode.ERRCODE_SUCCESS_LOGINOK,String.valueOf(1231234)));
             }
         });
 
+
+
+
+    }
+
+    @Override
+    //设置回退
+    //覆盖Activity类的onKeyDown(int keyCoder,KeyEvent event)方法
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK) && wv.canGoBack()) {
+            wv.goBack(); //goBack()表示返回WebView的上一页面
+            return true;
+        }
+        return false;
+    }
+
+    public static void s(final int uid) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -90,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                     j.put("version", "1.2.40");
                     j.put("domain", "192.168.2.101");
                     j.put("port", 9000);
-                    j.put("uid", 98721);
+                    j.put("uid", uid);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -98,10 +121,9 @@ public class MainActivity extends AppCompatActivity {
                 demo.login(j.toString());
             }
         }).start();
-
-
     }
 
+    public Handler mHandler = new Handler();
 
     public class MyCallback implements Handler.Callback {
         @Override
