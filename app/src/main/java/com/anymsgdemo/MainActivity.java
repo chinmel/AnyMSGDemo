@@ -17,6 +17,7 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
     WebView wv;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,28 +34,37 @@ public class MainActivity extends AppCompatActivity {
         wv.addJavascriptInterface(new WebViewJS2Java(), "webViewJS2Java");
         wv.loadUrl("file:///android_asset/index.html");
 
+
         final AnyMSG demo = new AnyMSG();
+
         demo.setOnMSGLoginListener(new AnyMSG.OnMSGLoginListener() {
             @Override
-            public int onMSGlogin() {
-                Log.d("anymsg", "onMSGloginListener");
-
-                JSONObject j = new JSONObject();
-                JSONObject opr = new JSONObject();
-                try {
-                    j.put("opr", opr);
-//                    j.put("port", 9000);
-                    opr.put("code", 2001);
-                    opr.put("desp", 98721);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                wv.loadUrl("javascript:anyMSGLoginCallbackFNC('" + j +"')");
-
-                return 0;
+            public void onMSGLogin() {
+                Log.d("anyMSGDemo", "onMSGLogin");
             }
         });
+
+        demo.setOnMSGWelcomeListener(new AnyMSG.OnMSGWelcomeListener() {
+            @Override
+            public void onMSGWelcome(String uid, String cid) {
+                Log.d("anyMSGDemo", "onMSGWelcome: uid[" + uid + "],cid[" + cid + "]");
+            }
+        });
+
+        demo.setOnMSGHeartBeatListener(new AnyMSG.OnMSGHeartBeatListener() {
+            @Override
+            public void onMSGHeartBeat(String uid, String cid) {
+                Log.d("anyMSGDemo", "onMSGHeartBeat: uid[" + uid + "],cid[" + cid + "]");
+            }
+        });
+
+        demo.setOnMSGHeartBeatReplyListener(new AnyMSG.OnMSGHeartBeatReplyListener() {
+            @Override
+            public void onMSGHeartBeatReply(String uid, String cid) {
+                Log.d("anyMSGDemo", "onMSGHeartBeatReply: uid[" + uid + "],cid[" + cid + "]");
+            }
+        });
+
 
         Button btn = (Button) findViewById(R.id.btn);
         btn.setOnClickListener(new View.OnClickListener() {
@@ -65,6 +75,38 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final JSONObject j = new JSONObject();
+                JSONObject opr = new JSONObject();
+                try {
+                    j.put("api", "anyMSGNative");
+                    j.put("version", "1.2.40");
+                    j.put("domain", "192.168.2.101");
+                    j.put("port", 9000);
+                    j.put("uid", 98721);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                demo.login(j.toString());
+            }
+        }).start();
+//        JSONObject j = new JSONObject();
+//        JSONObject opr = new JSONObject();
+//        try {
+//            j.put("opr", opr);
+////                    j.put("port", 9000);
+//            opr.put("code", 2001);
+//            opr.put("desp", 98721);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//
+//        wv.loadUrl("javascript:anyMSGLoginCallbackFNC('" + j +"')");
+
     }
 
 

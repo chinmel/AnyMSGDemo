@@ -74,12 +74,11 @@ android.applicationVariants.all { variant ->
     variant.outputs.each { output ->
         output.outputFile = new File(
                 output.outputFile.parent + "/${variant.buildType.name}",
-                "AnyMSGNative-${variant.buildType.name}-v${variant.versionName}-${variant.productFlavors[0].name}-${releaseTime()}.apk".toLowerCase())
+                "AnyMSGDemo-${variant.buildType.name}-v${variant.versionName}-${variant.productFlavors[0].name}-${releaseTime()}.apk".toLowerCase())
     }
 }
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:22.2.1'
-    compile 'com.google.android.gms:play-services-appindexing:8.1.0'
 }
