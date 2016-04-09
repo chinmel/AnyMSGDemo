@@ -11,6 +11,7 @@ public class WebViewJS2Java {
      * This is not called on the UI thread. Post a runnable to invoke
      * loadUrl on the UI thread.
      */
+    //一定不要忘记加上注解
     @JavascriptInterface
     public void clickOnAndroid(final String uid) {
         Log.i("anyMSG", "clickOnAndroid: " + uid);
@@ -34,5 +35,11 @@ public class WebViewJS2Java {
 //            }
 //        });
 
+    }
+
+    //一定不要忘记加上注解
+    @JavascriptInterface
+    public void clickOnSend(String cid, String message) {
+        MainActivity.send(Integer.parseInt(cid, 10), message);
     }
 }

@@ -24,8 +24,7 @@
 //#define ERRCODE_SERVER_INITERROR	5001	/*服务初始化错误*/
 
 var IsLogin = false;
-var OwnCID = 0;
-var OwnID = 0;
+
 var BufferLast = 0;
 var BufferLastCount = 0;
 var GErrSpliter = Math.uuid(6);
